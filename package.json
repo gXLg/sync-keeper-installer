@@ -1,0 +1,22 @@
+{
+  "bin": "index.js",
+  "name": "sync-keeper-installer",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "build:exe": "pkg . --targets node24-linux-x64,node24-win-x64,node24-macos-x64 --out-path dist"
+  },
+  "author": "gXLg",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.21.1",
+    "readline-sync": "^1.4.10"
+  },
+  "devDependencies": {
+    "@yao-pkg/pkg": "^6.26.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}
