@@ -71,7 +71,7 @@ async function download(url, output) {
 async function main() {
   const INSTALL_DIR = path.join(getAppDir(), "SyncKeeper_by_gXLg");
   const EXE_NAME = getBinName();
-  const EXE = path.join(INSTALL_DIR, EXE_NANE);
+  const EXE = path.join(INSTALL_DIR, EXE_NAME);
 
   console.log();
   console.log("- SyncKeeper Installer - Author: gXLg - Date: Nov 2026 - LICENSE: MIT -");
