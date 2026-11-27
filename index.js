@@ -2,16 +2,15 @@ const path = require("node:path");
 const crypto = require("node:crypto");
 const os = require("node:os");
 const fs = require("fs");
+const { spawnSync } = require("child_process");
 
 const axios = require("axios");
-const input = require("readline-sync");
+const { relaunchInTerminal } = require("node-relaunch");
 
 function getAppDir() {
   switch (process.platform) {
     case "win32":
       return process.env.APPDATA || path.join(os.homedir(), "AppData", "Roaming");
-    case "darwin":
-      return path.join(os.homedir(), "Library", "Application Support");
     case "linux":
       return process.env.XDG_CONFIG_HOME || path.join(os.homedir(), ".config");
     default:
@@ -22,31 +21,29 @@ function getAppDir() {
 function getBinName() {
   switch (process.platform) {
     case "win32":
-      return "sync-keeper-win.exe";
-    case "darwin":
-      return "sync-keeper-macos";
+      return "sync-keeper-client-win.exe";
     case "linux":
-      return "sync-keeper-linux";
+      return "sync-keeper-client-linux";
     default:
       throw new Error(`Unsupported platform: ${process.platform}`);
   }
 }
 
-function prompt(text, filterMap) {
+async function prompt(input, text, filterMap) {
   while (true) {
-    const answer = input.question(text + "\n    ").trim();
+    const answer = await input.question(text + "\n    ").then(a => a.trim());
     const { keep, value } = filterMap(answer);
     if (keep) return value;
     console.log("Wrong format, please re-check your input and try again!");
   }
 }
 
-function promptFilter(text, filter) {
-  return prompt(text, value => ({ "keep": filter(value), value }));
+async function promptFilter(input, text, filter) {
+  return await prompt(input, text, value => ({ "keep": filter(value), value }));
 }
 
-function promptConfirm(action) {
-  prompt(`Press [Enter] to ${action ?? "continue"} ...`, a => ({ "keep": true }));
+async function promptConfirm(input, action) {
+  await prompt(input, `Press [Enter] to ${action ?? "continue"} ...`, a => ({ "keep": true }));
 }
 
 async function download(url, output) {
@@ -68,7 +65,7 @@ async function download(url, output) {
   });
 }
 
-async function main() {
+async function main(input) {
   const INSTALL_DIR = path.join(getAppDir(), "SyncKeeper_by_gXLg");
   const EXE_NAME = getBinName();
   const EXE = path.join(INSTALL_DIR, EXE_NAME);
@@ -83,17 +80,20 @@ async function main() {
 
   if (updating) {
     console.log("Existing installation detected, updating and/or repairing stuff ...");
+    console.log();
 
     host = fs.readFileSync(path.join(INSTALL_DIR, "host.txt"), "utf8").trim();
     folder = fs.readFileSync(path.join(INSTALL_DIR, "folder.txt"), "utf8").trim();
     username = fs.readFileSync(path.join(INSTALL_DIR, "username.txt"), "utf8").trim();
 
-    host = promptFilter(
+    host = await promptFilter(
+      input,
       `Host Address | Press [Enter] to keep current ('${host}') or enter a new one:`,
       v => v.length == 0 || /^https[:][/][/][a-z]([a-z0-9-.]*?)[.]([a-z]+?)$/.test(v)
-    ) ?? host;
+    ) || host;
 
-    folder = prompt(
+    folder = await prompt(
+      input,
       `Game Folder  | Press [Enter] to keep current ('${folder}') or enter a new one:`,
       v => {
         if (v.length == 0) return { "keep": true, "value": folder };
@@ -103,23 +103,27 @@ async function main() {
       }
     );
 
-    username = promptFilter(
+    username = await promptFilter(
+      input,
       `Username     | Press [Enter] to keep current ('${username}') or enter a new one:`,
       v => v.length == 0 || /^[a-zA-Z0-9_]{3,10}$/.test(v)
-    ) ?? username;
+    ) || username;
 
   } else {
     console.log("Installing SyncKeeper ...");
     fs.mkdirSync(INSTALL_DIR);
 
     console.log("Requesting user data ...");
+    console.log();
 
-    host = promptFilter(
+    host = await promptFilter(
+      input,
       `Host Address | Enter the Host Address (e.g. 'https://example.com'):`,
       v => /^https[:][/][/][a-z]([a-z0-9-.]*?)[.]([a-z]+?)$/.test(v)
     );
 
-    folder = prompt(
+    folder = await prompt(
+      input,
       `Game Folder  | Select the Game Folder (e.g. 'C:\\Users\\User\\AppData\\LocalLow\Pugstorm\\Core Keeper\\Steam\\12345'):`,
       v => {
         const value = path.normalize(v);
@@ -128,7 +132,8 @@ async function main() {
       }
     );
 
-    username = promptFilter(
+    username = await promptFilter(
+      input,
       `Username     | Pick your displayed Username (3-10 characters, latin, numbers, underscores, e.g. '_Core_1337'):`,
       v => /^[a-zA-Z0-9_]{3,10}$/.test(v)
     );
@@ -158,15 +163,14 @@ async function main() {
   console.log();
 }
 
-(async () => {
-
+async function wrapTerminal(input) {
   process.on("SIGINT", () => {
     console.log("\rCTRL+C pressed, exitting ...");
     process.exit(0);
   });
 
   try {
-    await main();
+    await main(input);
     console.log();
     console.log("-- INSTALLATION SUCCESSFULL --");
     console.log();
@@ -179,6 +183,9 @@ async function main() {
     console.error(err);
     console.log();
   }
-  promptConfirm("exit");
+  await promptConfirm(input, "exit");
+}
 
+(async () => {
+  relaunchInTerminal("Sync Keeper | Installer", wrapTerminal);
 })();

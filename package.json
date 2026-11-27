@@ -11,7 +11,7 @@
   "description": "",
   "dependencies": {
     "axios": "^1.21.1",
-    "readline-sync": "^1.4.10"
+    "node-relaunch": "^1.0.0"
   },
   "devDependencies": {
     "@yao-pkg/pkg": "^6.26.0"
