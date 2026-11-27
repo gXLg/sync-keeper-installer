@@ -193,5 +193,5 @@ async function wrapTerminal(input) {
 }
 
 (async () => {
-  relaunchInTerminal("Sync Keeper | Installer", wrapTerminal);
+  await relaunchInTerminal("Sync Keeper | Installer", wrapTerminal);
 })();
