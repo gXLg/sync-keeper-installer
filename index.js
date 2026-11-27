@@ -88,13 +88,13 @@ async function main(input) {
 
     host = await promptFilter(
       input,
-      `Host Address | Press [Enter] to keep current ('${host}') or enter a new one:`,
+      `[Host Address] ${host}\nPress [Enter] to keep current or enter a new one:`,
       v => v.length == 0 || /^https[:][/][/][a-z]([a-z0-9-.]*?)[.]([a-z]+?)$/.test(v)
     ) || host;
 
     folder = await prompt(
       input,
-      `Game Folder  | Press [Enter] to keep current ('${folder}') or enter a new one:`,
+      `[Game Folder] '${folder}'\nPress [Enter] to keep current or enter a new one:`,
       v => {
         if (v.length == 0) return { "keep": true, "value": folder };
         const value = path.normalize(v);
@@ -105,7 +105,7 @@ async function main(input) {
 
     username = await promptFilter(
       input,
-      `Username     | Press [Enter] to keep current ('${username}') or enter a new one:`,
+      `[Username] ${username}\nPress [Enter] to keep current or enter a new one:`,
       v => v.length == 0 || /^[a-zA-Z0-9_]{3,10}$/.test(v)
     ) || username;
 
@@ -118,13 +118,13 @@ async function main(input) {
 
     host = await promptFilter(
       input,
-      `Host Address | Enter the Host Address (e.g. 'https://example.com'):`,
+      `[Host Address]\nEnter the Host Address (e.g. 'https://example.com'):`,
       v => /^https[:][/][/][a-z]([a-z0-9-.]*?)[.]([a-z]+?)$/.test(v)
     );
 
     folder = await prompt(
       input,
-      `Game Folder  | Select the Game Folder (e.g. 'C:\\Users\\User\\AppData\\LocalLow\Pugstorm\\Core Keeper\\Steam\\12345'):`,
+      `[Game Folder]\nSelect the Game Folder (e.g. 'C:\\Users\\User\\AppData\\LocalLow\Pugstorm\\Core Keeper\\Steam\\12345'):`,
       v => {
         const value = path.normalize(v);
         const keep = fs.existsSync(value);
@@ -134,7 +134,7 @@ async function main(input) {
 
     username = await promptFilter(
       input,
-      `Username     | Pick your displayed Username (3-10 characters, latin, numbers, underscores, e.g. '_Core_1337'):`,
+      `[Username]\nPick your displayed Username (3-10 characters, latin, numbers, underscores, e.g. '_Core_1337'):`,
       v => /^[a-zA-Z0-9_]{3,10}$/.test(v)
     );
 
@@ -157,9 +157,15 @@ async function main(input) {
   await download(latest, EXE);
 
   console.log("All done! Now go to Steam and update the launch options of Core Keeper with one of the following:");
-  console.log(`If empty:                 "${EXE}" %command%`);
-  console.log(`If contains '%command%':  "${EXE}" <oldContent>`);
-  console.log(`Else:                     "${EXE}" %command% <oldContent>`);
+  console.log();
+  console.log("If empty:");
+  console.log(`"${EXE}" %command%`);
+  console.log();
+  console.log("If contains '%command%':");
+  console.log(`"${EXE}" <oldContent>`);
+  console.log();
+  console.log("Else:");
+  console.log(`"${EXE}" %command% <oldContent>`);
   console.log();
 }
 
