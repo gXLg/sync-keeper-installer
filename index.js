@@ -155,6 +155,9 @@ async function main(input) {
 
   console.log(`Downloading from ${latest} ...`);
   await download(latest, EXE);
+  if (process.platform == "linux") {
+    fs.chmodSync(EXE, fs.statSync(EXE).mode | 0o100);
+  }
 
   console.log("All done! Now go to Steam and update the launch options of Core Keeper with one of the following:");
   console.log();
