@@ -1,7 +1,7 @@
 {
   "bin": "index.js",
   "name": "sync-keeper-installer",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "index.js",
   "scripts": {
     "build:exe": "pkg . --targets node24-linux-x64,node24-win-x64 --out-path dist"
