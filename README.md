@@ -2,7 +2,7 @@
 
 World synchronisation solution for Core Keeper
 
-This repository contains opens-source code of the Sync Keeper installer.
+This repository contains open-source code of the Sync Keeper installer.
 Sync Keeper supports Windows and Linux.
 
 # Usage
